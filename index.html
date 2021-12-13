@@ -6,14 +6,79 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>画板</title>
+    <link rel="stylesheet" href="index.css">
 </head>
 
 <body>
-    <div id="canvas"></div>
+    <canvas id="canvas"></canvas>
     <script>
-        canvas.onclick = (e) => {
-            console.log(e)
+        // 找到canvas
+        let canvas = document.getElementById("canvas");
+        // 获取宽高
+        canvas.width = document.documentElement.clientWidth
+        canvas.height = document.documentElement.clientHeight
+        let ctx = canvas.getContext("2d");
+        // 颜色
+        ctx.fillStyle = "black";
+        // 默认未执行
+        let painting = false
+        // 判断触摸
+        let isTouchDevice = 'ontouchstart' in document.documentElement
+        // 划线
+        function drawLine(x1, y1, x2, y2) {
+            ctx.beginPath();
+            // 起始位置
+            ctx.moveTo(x1, y1);
+            // 结束位置
+            ctx.lineTo(x2, y2);
+            // 画笔宽度
+            ctx.lineWidth = 10
+            // 消除锯齿
+            ctx.lineCap = 'round'
+            // 描边
+            ctx.stroke();
         }
+        // drawLine(0,0,500,500);
+        let last
+
+        if (isTouchDevice) {
+            canvas.ontouchstart = (d) => {
+                let x = d.touches[0].clientX
+                let y = d.touches[0].clientY
+                last = [x, y]
+            }
+            canvas.ontouchmove = (a) => {
+                let x = a.touches[0].clientX
+                let y = a.touches[0].clientY
+                drawLine(last[0], last[1], x, y)
+                last=[x,y]
+
+            }
+        } else {
+            canvas.onmousedown = (b) => {
+                painting = true
+                last = [b.clientX, b.clientY]
+            }
+
+            canvas.onmousemove = (e) => {
+                if (painting === true) {
+                    drawLine(last[0], last[1], e.clientX, e.clientY);
+                    last = [e.clientX, e.clientY]
+                }
+            }
+
+            canvas.onmouseup = () => {
+                painting = false
+            }
+        }
+
+
+
+        // var canvas = document.getElementById("canvas");
+        // var ctx = canvas.getContext("2d");
+
+        // ctx.fillStyle = "blue";
+        // ctx.fillRect(10, 10, 55, 50);
     </script>
 </body>
 
